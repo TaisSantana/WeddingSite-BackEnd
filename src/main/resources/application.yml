@@ -1,0 +1,68 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # Email
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+# ?? Aplica��o ??????????????????????????????????
+app:
+  jwt:
+    secret: ${JWT_SECRET:minha-chave-secreta-super-longa-para-dev-local-2026}
+    expiration-ms: 86400000   # 24 horas
+  admin:
+    username: noivos
+    # bcrypt de "taisgabriel2026" ? TROQUE em produ��o!
+    password-hash: $2a$12$K2sX1mJ9z0nH4vL8pW3rOeQYkD5gF7hN6cA1bE0iM4jT9lS2wR8Pu
+  email:
+    noivos: tatahgabe.wedding@gmail.com
+
+cors:
+  allowed-origins: http://localhost:4200
+
+# ── Mercado Pago  teste token─────────────────────────────
+mercadopago:
+  access-token: ${MP_ACCESSTOKEN}
+  # URL base para redirecionar após pagamento (seu site Angular em produção)
+  success-url: http://localhost:4200/carrinho/sucesso
+  failure-url: http://localhost:4200/carrinho/falha
+  pending-url: http://localhost:4200/carrinho/pendente
+
+server:
+  port: 8080
+
+logging:
+  level:
+    br.com.casamento: DEBUG
+    org.springframework.web: INFO
