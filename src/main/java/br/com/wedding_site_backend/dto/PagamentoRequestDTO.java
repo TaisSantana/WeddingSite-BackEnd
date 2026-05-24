@@ -8,26 +8,17 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
-
-// ── Request compartilhado (Pix e Checkout Pro) ────────────
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class PagamentoRequestDTO {
 
-    @NotBlank
-    private String nomeDoador;
-
-    @NotBlank @Email
-    private String emailDoador;
-
+    @NotBlank private String nome;
+    @NotBlank @Email private String email;
     private String mensagem;
-
     @NotEmpty @Valid
     private List<ItemCarrinhoDTO> itens;
 
-    // ── Item do carrinho ──────────────────────────────────
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class ItemCarrinhoDTO {
-        @NotNull
-        private Long catalogoId;
+        @NotNull private Long catalogoId;
     }
 }

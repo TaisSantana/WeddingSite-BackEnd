@@ -76,8 +76,8 @@ public class AdminService {
 
         return PresenteRecebidoDTO.builder()
                 .id(pr.getId())
-                .nomeDoador(pr.getNomeDoador())
-                .emailDoador(pr.getEmailDoador())
+                .nome(pr.getNome())
+                .email(pr.getEmail())
                 .mensagem(pr.getMensagem())
                 .formaPagamento(pr.getFormaPagamento())
                 .total(pr.getTotal())

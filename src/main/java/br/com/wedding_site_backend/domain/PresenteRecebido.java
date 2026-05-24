@@ -18,10 +18,10 @@ public class PresenteRecebido {
     private Long id;
 
     @Column(nullable = false)
-    private String nomeDoador;
+    private String nome;
 
     @Column(nullable = false)
-    private String emailDoador;
+    private String email;
 
     @Column(columnDefinition = "TEXT")
     private String mensagem;

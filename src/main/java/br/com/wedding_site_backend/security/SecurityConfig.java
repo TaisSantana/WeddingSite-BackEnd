@@ -39,7 +39,7 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // Públicas
-                        .requestMatchers(HttpMethod.GET,  "/api/presentes").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/admin/presentes-recebidos").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api/convites/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/convites/*/confirmar").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/pagamentos/pix").permitAll()
@@ -48,6 +48,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/pagamentos/webhook").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/admin/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/pagamentos/checkout").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/catalogo").permitAll()
+                        .requestMatchers(HttpMethod.POST,   "/api/convites").permitAll()
+                        .requestMatchers(HttpMethod.PATCH,  "/api/convites/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/convites/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,   "/api/catalogo").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/catalogo/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,   "/api/convites/convidados").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/pagamentos/test-email/*").permitAll()
+
+
+
 
                         // Admin
                         .anyRequest().authenticated()

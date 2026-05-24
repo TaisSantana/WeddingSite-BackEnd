@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/presentes")
+@RequestMapping("/api/catalogo")
 @RequiredArgsConstructor
 public class CatalogoPresenteController {
 
@@ -33,5 +33,14 @@ public class CatalogoPresenteController {
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         service.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CatalogoPresenteDTO> atualizar(
+            @PathVariable Long id,
+            @RequestBody @Valid CatalogoPresenteDTO dto) {
+
+        return ResponseEntity.ok(service.atualizar(id, dto));
     }
 }

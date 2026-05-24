@@ -7,5 +7,6 @@ import lombok.*;
 public class ConvidadoDTO {
     private Long id;
     private String nome;
+    private String codigoConvite;
     private StatusPresenca status;
 }

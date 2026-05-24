@@ -87,52 +87,55 @@ public class EmailService {
             : "";
 
         return """
-            <!DOCTYPE html>
-            <html lang="pt-BR">
-            <head><meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width,initial-scale=1">
-            <style>
-              body{margin:0;font-family:Arial,sans-serif;background:#FAF7F2;color:#2C2035}
-              .wrap{max-width:560px;margin:0 auto;padding:1.5rem 1rem}
-              .header{background:linear-gradient(135deg,#5E7FA8,#9A6EB0);border-radius:16px 16px 0 0;padding:2.5rem;text-align:center}
-              .header h1{font-family:Georgia,serif;color:white;font-size:2rem;margin:0 0 .3rem;font-style:italic}
-              .header p{color:rgba(255,255,255,.85);margin:0;font-size:.9rem;letter-spacing:.15em}
-              .body{background:white;border-radius:0 0 16px 16px;padding:2rem}
-              .greeting{font-size:1rem;color:#5A4E6A;margin-bottom:1.5rem;line-height:1.7}
-              .box{background:#DCE8F5;border-radius:12px;padding:1.2rem 1.5rem;margin-bottom:1.2rem}
-              .row{display:flex;justify-content:space-between;padding:.35rem 0;
-                   border-bottom:1px solid rgba(146,168,209,.3);font-size:.87rem}
-              .row:last-child{border-bottom:none;font-weight:700}
-              .label{color:#8A7A9A}.value{color:#2C2035}
-              .msg-box{background:#F3EAF7;border-left:4px solid #9A6EB0;border-radius:0 8px 8px 0;
-                       padding:1rem 1.2rem;margin-bottom:1.2rem;font-style:italic;color:#5A4E6A;font-size:.9rem}
-              .footer{text-align:center;margin-top:2rem;font-size:.8rem;color:#8A7A9A}
-              .footer strong{color:#5E7FA8}
-            </style>
-            </head>
-            <body><div class="wrap">
-              <div class="header">
-                <div style="font-size:2rem;margin-bottom:.5rem">🦋</div>
-                <h1>Presente Confirmado!</h1>
-                <p>Taís &amp; Gabriel · 19.09.2026</p>
-              </div>
-              <div class="body">
-                <p class="greeting">Olá, <strong>%s</strong>!<br><br>
-                Seu presente foi confirmado. Obrigado por fazer parte do nosso dia especial — seu carinho significa tudo para nós. 💜</p>
-                <div class="box">
-                  <div class="row"><span class="label">Pagamento</span><span class="value">%s</span></div>
-                  <div class="row"><span class="label">Data</span><span class="value">%s</span></div>
-                  <div class="row"><span class="label">Valor</span><span class="value">%s</span></div>
-                </div>
-                %s
-                <p class="greeting" style="font-size:.9rem">
-                  ✦ Nos vemos em <strong>19/09/2026 às 16h</strong> no
-                  <strong>Restaurante Natureza Viva</strong> — Feira Nova, PE. 🦋
-                </p>
-              </div>
-              <div class="footer">Com amor, <strong>Taís &amp; Gabriel</strong></div>
-            </div></body></html>
-            """.formatted(nome, pagLabel, data, valor, msgBox);
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head><meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width,initial-scale=1">
+                <style>
+                  body{margin:0;font-family:Arial,sans-serif;background:#FAF7F2;color:#2C2035}
+                  .wrap{max-width:560px;margin:0 auto;padding:1.5rem 1rem}
+                  .header{background:linear-gradient(135deg,#5E7FA8,#9A6EB0);border-radius:16px 16px 0 0;padding:2.5rem;text-align:center}
+                  .header h1{font-family:Georgia,serif;color:white;font-size:2rem;margin:0 0 .3rem;font-style:italic}
+                  .header p{color:rgba(255,255,255,.85);margin:0;font-size:.9rem;letter-spacing:.15em}
+                  .body{background:white;border-radius:0 0 16px 16px;padding:2rem}
+                  .greeting{font-size:1rem;color:#5A4E6A;margin-bottom:1.5rem;line-height:1.7}
+                  .box{background:#DCE8F5;border-radius:12px;padding:1.2rem 1.5rem;margin-bottom:1.2rem}
+                  .row{display:flex;justify-content:space-between;padding:.35rem 0;
+                       border-bottom:1px solid rgba(146,168,209,.3);font-size:.87rem}
+                  .row:last-child{border-bottom:none;font-weight:700}
+                  .label{color:#8A7A9A}.value{color:#2C2035}
+                  .msg-box{background:#F3EAF7;border-left:4px solid #9A6EB0;border-radius:0 8px 8px 0;
+                           padding:1rem 1.2rem;margin-bottom:1.2rem;font-style:italic;color:#5A4E6A;font-size:.9rem}
+                  .footer{text-align:center;margin-top:2rem;font-size:.8rem;color:#8A7A9A}
+                  .footer strong{color:#5E7FA8}
+                </style>
+                </head>
+                <body><div class="wrap">
+                  <div class="header">
+                    <div style="font-size:2rem;margin-bottom:.5rem">🦋</div>
+                    <h1>Presente Confirmado!</h1>
+                    <p>Taís &amp; Gabriel · 19.09.2026</p>
+                  </div>
+                  <div class="body">
+                    <p class="greeting">Olá, <strong>%s</strong>!<br><br>
+                        Seu presente foi confirmado! ✨<br>
+                        Obrigada por fazer parte desse momento tão especial das nossas vidas.<br>
+                        Cada gesto de carinho torna essa jornada ainda mais inesquecível para nós. 🩵
+                    </p>
+                    <div class="box">
+                      <div class="row"><span class="label">Pagamento: </span><span class="value">%s</span></div>
+                      <div class="row"><span class="label">Data: </span><span class="value">%s</span></div>
+                      <div class="row"><span class="label">Valor: </span><span class="value">%s</span></div>
+                    </div>
+                    %s
+                    <p class="greeting" style="font-size:.9rem">
+                      ✦ Nos vemos em <strong>19/09/2026 às 15h</strong> no
+                      <strong>Restaurante Natureza Viva</strong> — Feira Nova, PE. 🦋
+                    </p>
+                  </div>
+                  <div class="footer">Com amor, <strong>Taís &amp; Gabriel</strong></div>
+                </div></body></html>
+                """.formatted(nome, pagLabel, data, valor, msgBox);
     }
 
     private String templateNoivos(String nome, String email, String mensagem,
@@ -172,11 +175,11 @@ public class EmailService {
               <div class="body">
                 <p>Vocês receberam um presente de <strong>%s</strong>!</p>
                 <div class="box">
-                  <div class="row"><span>Nome</span><span>%s</span></div>
-                  <div class="row"><span>Email</span><span>%s</span></div>
-                  <div class="row"><span>Pagamento</span><span>%s</span></div>
-                  <div class="row"><span>Data</span><span>%s</span></div>
-                  <div class="row"><span>Valor</span><span>%s</span></div>
+                  <div class="row"><span>Nome: </span><span>%s</span></div>
+                  <div class="row"><span>Email: </span><span>%s</span></div>
+                  <div class="row"><span>Pagamento: </span><span>%s</span></div>
+                  <div class="row"><span>Data: </span><span>%s</span></div>
+                  <div class="row"><span>Valor: </span><span>%s</span></div>
                 </div>
                 %s
               </div>

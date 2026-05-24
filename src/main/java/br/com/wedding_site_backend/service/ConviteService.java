@@ -9,10 +9,12 @@ import br.com.wedding_site_backend.repository.ConvidadoRepository;
 import br.com.wedding_site_backend.repository.ConviteRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +23,7 @@ public class ConviteService {
     private final ConviteRepository conviteRepo;
     private final ConvidadoRepository convidadoRepo;
 
-    public ConviteResponseDTO buscarPorCodigo(String codigo) {
+    public ConviteResponseDTO buscarConvitePorCodigo(String codigo) {
         Convite c = conviteRepo.findByCodigo(codigo.toUpperCase())
             .orElseThrow(() -> new EntityNotFoundException("Código não encontrado: " + codigo));
         return toDTO(c);
@@ -41,12 +43,10 @@ public class ConviteService {
     }
 
     @Transactional
-    public ConviteResponseDTO criar(ConviteCreateDTO dto) {
-        if (conviteRepo.existsByCodigo(dto.getCodigo().toUpperCase())) {
-            throw new IllegalArgumentException("Código já existe: " + dto.getCodigo());
-        }
+    public ConviteResponseDTO criarConvite(ConviteDTO dto) {
+
         Convite convite = Convite.builder()
-            .codigo(dto.getCodigo().toUpperCase())
+            .codigo(gerarCodigoUnico())
             .familia(dto.getFamilia())
             .build();
 
@@ -62,12 +62,31 @@ public class ConviteService {
         return toDTO(conviteRepo.save(convite));
     }
 
+    private String gerarCodigoUnico() {
+
+        String codigo;
+
+        do {
+
+            int numero = ThreadLocalRandom.current()
+                    .nextInt(0, 10);
+
+            String letras = RandomStringUtils.randomAlphabetic(2)
+                    .toUpperCase();
+
+            codigo = "TG" + numero + letras;
+
+        } while (conviteRepo.existsByCodigo(codigo));
+
+        return codigo;
+    }
+
     @Transactional
-    public void deletar(String codigo) {
+    public void deletarConvite(String codigo) {
         conviteRepo.deleteById(codigo);
     }
 
-    public List<ConviteResponseDTO> listarTodos() {
+    public List<ConviteResponseDTO> listarTodosConvites() {
         return conviteRepo.findAll().stream().map(this::toDTO).toList();
     }
 
@@ -88,5 +107,18 @@ public class ConviteService {
         return ConviteResponseDTO.builder()
             .codigo(c.getCodigo()).familia(c.getFamilia())
             .convidados(convidados).build();
+    }
+
+    @Transactional
+    public ConviteResponseDTO editarConvite(String codigo, ConviteDTO dto) {
+
+        Convite convite = conviteRepo.findByCodigo(codigo.toUpperCase())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Código não encontrado: " + codigo));
+
+        convite.setFamilia(dto.getFamilia());
+        convite.setCodigo(dto.getCodigo().toUpperCase());
+
+        return toDTO(conviteRepo.save(convite));
     }
 }

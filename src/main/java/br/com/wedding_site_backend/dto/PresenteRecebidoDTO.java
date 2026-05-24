@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 public class PresenteRecebidoDTO {
 
     private Long id;
-    private String nomeDoador;
-    private String emailDoador;
+    private String nome;
+    private String email;
     private String mensagem;
     private String formaPagamento;
     private BigDecimal total;

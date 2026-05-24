@@ -5,8 +5,8 @@ import lombok.*;
 import java.util.List;
 
 @Data @NoArgsConstructor @AllArgsConstructor
-public class ConviteCreateDTO {
-    @NotBlank private String codigo;
+public class ConviteDTO {
+    private String codigo;
     @NotBlank private String familia;
     @NotEmpty private List<String> convidados;
 }

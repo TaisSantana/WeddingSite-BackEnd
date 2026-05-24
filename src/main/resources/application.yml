@@ -9,17 +9,17 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     open-in-view: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  # Email
   mail:
     host: smtp.gmail.com
     port: 587
@@ -36,33 +36,30 @@ spring:
           timeout: 5000
           writetimeout: 5000
 
-# ?? Aplica��o ??????????????????????????????????
 app:
   jwt:
-    secret: ${JWT_SECRET:minha-chave-secreta-super-longa-para-dev-local-2026}
-    expiration-ms: 86400000   # 24 horas
+    secret: ${JWT_SECRET}
+    expiration-ms: 86400000
   admin:
-    username: noivos
-    # bcrypt de "taisgabriel2026" ? TROQUE em produ��o!
-    password-hash: $2a$12$K2sX1mJ9z0nH4vL8pW3rOeQYkD5gF7hN6cA1bE0iM4jT9lS2wR8Pu
+    username: ${ADMIN_USERNAME}
+    password-hash: ${ADMIN_PASSWORD_HASH}
   email:
-    noivos: tatahgabe.wedding@gmail.com
+    noivos: ${EMAIL_NOIVOS}
 
 cors:
-  allowed-origins: http://localhost:4200
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
 
-# ── Mercado Pago  teste token─────────────────────────────
 mercadopago:
-  access-token: ${MP_ACCESSTOKEN}
-  # URL base para redirecionar após pagamento (seu site Angular em produção)
-  success-url: http://localhost:4200/carrinho/sucesso
-  failure-url: http://localhost:4200/carrinho/falha
-  pending-url: http://localhost:4200/carrinho/pendente
+  access-token-pix: ${MP_ACCESS_TOKEN_PIX}
+  access-token-cartao: ${MP_ACCESS_TOKEN_CARTAO}
+  success-url: ${MP_SUCCESS_URL}
+  failure-url: ${MP_FAILURE_URL}
+  pending-url: ${MP_PENDING_URL}
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 logging:
   level:
-    br.com.casamento: DEBUG
+    br.com.casamento: INFO
     org.springframework.web: INFO

@@ -1,7 +1,11 @@
 package br.com.wedding_site_backend.controller;
 
+import br.com.wedding_site_backend.domain.PresenteRecebido;
 import br.com.wedding_site_backend.dto.*;
+import br.com.wedding_site_backend.repository.PresenteRecebidoRepository;
+import br.com.wedding_site_backend.service.EmailService;
 import br.com.wedding_site_backend.service.PagamentoService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,4 +56,21 @@ public class PagamentoController {
         service.processarWebhook(payload);
         return ResponseEntity.ok().build();
     }
+
+
+    @Autowired
+    PresenteRecebidoRepository presenteRecebidoRepo;
+    @Autowired
+    EmailService emailService;
+
+    // ⚠️ REMOVER ANTES DE IR PARA PRODUÇÃO
+    @GetMapping("/test-email/{presenteId}")
+    public ResponseEntity<String> testEmail(@PathVariable Long presenteId) {
+        PresenteRecebido pr = presenteRecebidoRepo.findById(presenteId)
+                .orElseThrow(() -> new EntityNotFoundException("Presente não encontrado"));
+        emailService.enviarConfirmacaoConvidado(pr.getNome(), pr.getEmail(), pr, "PIX");
+        emailService.enviarNotificacaoNoivos(pr.getNome(), pr.getEmail(), pr.getMensagem(), pr, "PIX");
+        return ResponseEntity.ok("Emails enviados!");
+    }
+
 }

@@ -3,22 +3,21 @@ package br.com.wedding_site_backend.service;
 import br.com.wedding_site_backend.domain.CatalogoPresente;
 import br.com.wedding_site_backend.domain.ItemPresenteRecebido;
 import br.com.wedding_site_backend.domain.PresenteRecebido;
-import br.com.wedding_site_backend.dto.PagamentoResponseDTO;
 import br.com.wedding_site_backend.dto.PagamentoRequestDTO;
+import br.com.wedding_site_backend.dto.PagamentoResponseDTO;
 import br.com.wedding_site_backend.dto.PixResponseDTO;
 import br.com.wedding_site_backend.dto.StatusPixDTO;
 import br.com.wedding_site_backend.repository.CatalogoPresenteRepository;
 import br.com.wedding_site_backend.repository.PresenteRecebidoRepository;
-import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.client.payment.PaymentCreateRequest;
 import com.mercadopago.client.payment.PaymentPayerRequest;
 import com.mercadopago.client.preference.*;
+import com.mercadopago.core.MPRequestOptions;
 import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
 import com.mercadopago.resources.payment.Payment;
 import com.mercadopago.resources.preference.Preference;
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +42,11 @@ public class PagamentoService {
     private final CatalogoPresenteRepository catalogoRepo;
     private final EmailService emailService;
 
-    @Value("${mercadopago.access-token}")
-    private String accessToken;
+    @Value("${mercadopago.access-token-pix}")
+    private String accessTokenPix;
+
+    @Value("${mercadopago.access-token-cartao}")
+    private String accessTokenCartao;
 
     @Value("${mercadopago.success-url}")
     private String successUrl;
@@ -55,11 +57,6 @@ public class PagamentoService {
     @Value("${mercadopago.pending-url}")
     private String pendingUrl;
 
-    @PostConstruct
-    public void init() {
-        MercadoPagoConfig.setAccessToken(accessToken);
-    }
-
     // ══════════════════════════════════════════════════════
     // PIX
     // ══════════════════════════════════════════════════════
@@ -68,26 +65,28 @@ public class PagamentoService {
         BigDecimal total = calcularTotal(req.getItens());
 
         try {
+            MPRequestOptions requestOptions = MPRequestOptions.builder()
+                    .accessToken(accessTokenPix)
+                    .customHeaders(Map.of("x-idempotency-key", UUID.randomUUID().toString()))
+                    .build();
+
             PaymentCreateRequest pixReq = PaymentCreateRequest.builder()
                     .transactionAmount(total)
                     .description("Presente Casamento Tais e Gabriel")
                     .paymentMethodId("pix")
                     .dateOfExpiration(OffsetDateTime.now().plusMinutes(30))
                     .payer(PaymentPayerRequest.builder()
-                            .email(req.getEmailDoador())
-                            .firstName(primeiroNome(req.getNomeDoador()))
-                            .lastName(sobrenome(req.getNomeDoador()))
+                            .email(req.getEmail())
+                            .firstName(primeiroNome(req.getNome()))
                             .build())
                     .build();
 
             PaymentClient client = new PaymentClient();
-            Payment payment = client.create(pixReq);
+            Payment payment = client.create(pixReq, requestOptions);
 
             String mpPaymentId = String.valueOf(payment.getId());
-            String copiaECola  = payment.getPointOfInteraction()
-                    .getTransactionData().getQrCode();
-            String qrBase64    = payment.getPointOfInteraction()
-                    .getTransactionData().getQrCodeBase64();
+            String copiaECola  = payment.getPointOfInteraction().getTransactionData().getQrCode();
+            String qrBase64    = payment.getPointOfInteraction().getTransactionData().getQrCodeBase64();
 
             PresenteRecebido pr = salvarPresenteRecebido(req, total, "PIX", mpPaymentId, null, null);
 
@@ -103,7 +102,7 @@ public class PagamentoService {
 
         } catch (MPApiException e) {
             log.error("Erro MP API Pix: {} - {}", e.getStatusCode(), e.getApiResponse().getContent());
-            throw new RuntimeException("Erro ao gerar Pix. Tente novamente.");
+            throw new RuntimeException("Erro ao gerar Pix: " + e.getApiResponse().getContent());
         } catch (MPException e) {
             log.error("Erro MP Pix: {}", e.getMessage());
             throw new RuntimeException("Erro ao gerar Pix. Tente novamente.");
@@ -114,8 +113,12 @@ public class PagamentoService {
     @Transactional
     public StatusPixDTO consultarStatusPix(String mpPaymentId) {
         try {
+            MPRequestOptions requestOptions = MPRequestOptions.builder()
+                    .accessToken(accessTokenPix)
+                    .build();
+
             PaymentClient client = new PaymentClient();
-            Payment payment = client.get(Long.parseLong(mpPaymentId));
+            Payment payment = client.get(Long.parseLong(mpPaymentId), requestOptions);
             String status = mapearStatus(payment.getStatus());
 
             if ("PAGO".equals(status)) {
@@ -144,6 +147,11 @@ public class PagamentoService {
         String externalRef = "CASAMENTO-" + UUID.randomUUID();
 
         try {
+            MPRequestOptions requestOptions = MPRequestOptions.builder()
+                    .accessToken(accessTokenCartao)
+                    .customHeaders(Map.of("x-idempotency-key", UUID.randomUUID().toString()))
+                    .build();
+
             List<PreferenceItemRequest> itensPreferencia = req.getItens().stream()
                     .map(item -> {
                         CatalogoPresente cp = catalogoRepo.findById(item.getCatalogoId())
@@ -163,8 +171,8 @@ public class PagamentoService {
             PreferenceRequest preferenceReq = PreferenceRequest.builder()
                     .items(itensPreferencia)
                     .payer(PreferencePayerRequest.builder()
-                            .name(req.getNomeDoador())
-                            .email(req.getEmailDoador())
+                            .name(req.getNome())
+                            .email(req.getEmail())
                             .build())
                     .backUrls(PreferenceBackUrlsRequest.builder()
                             .success(successUrl)
@@ -177,7 +185,7 @@ public class PagamentoService {
                     .build();
 
             PreferenceClient client = new PreferenceClient();
-            Preference preference = client.create(preferenceReq);
+            Preference preference = client.create(preferenceReq, requestOptions);
 
             PresenteRecebido pr = salvarPresenteRecebido(
                     req, total, "CARTAO", null, preference.getId(), externalRef);
@@ -191,7 +199,7 @@ public class PagamentoService {
 
         } catch (MPApiException e) {
             log.error("Erro MP API Checkout: {} - {}", e.getStatusCode(), e.getApiResponse().getContent());
-            throw new RuntimeException("Erro ao criar checkout. Tente novamente.");
+            throw new RuntimeException("Erro ao criar checkout: " + e.getApiResponse().getContent());
         } catch (MPException e) {
             log.error("Erro MP Checkout: {}", e.getMessage());
             throw new RuntimeException("Erro ao criar checkout. Tente novamente.");
@@ -202,6 +210,7 @@ public class PagamentoService {
     // WEBHOOK
     // Configure: MP Developer -> sua app -> Webhooks
     // URL: https://sua-api.railway.app/api/pagamentos/webhook
+    // Eventos: payment
     // ══════════════════════════════════════════════════════
     @Transactional
     @SuppressWarnings("unchecked")
@@ -214,8 +223,13 @@ public class PagamentoService {
             if (data == null) return;
 
             String mpPaymentId = String.valueOf(data.get("id"));
+
+            MPRequestOptions requestOptions = MPRequestOptions.builder()
+                    .accessToken(accessTokenPix)
+                    .build();
+
             PaymentClient client = new PaymentClient();
-            Payment payment = client.get(Long.parseLong(mpPaymentId));
+            Payment payment = client.get(Long.parseLong(mpPaymentId), requestOptions);
             String status = mapearStatus(payment.getStatus());
 
             log.info("Webhook MP: payment {} -> {}", mpPaymentId, status);
@@ -250,8 +264,8 @@ public class PagamentoService {
         if (mpPaymentId != null) pr.setMpPaymentId(mpPaymentId);
         presenteRecebidoRepo.save(pr);
 
-        emailService.enviarConfirmacaoConvidado(pr.getNomeDoador(), pr.getEmailDoador(), pr, forma);
-        emailService.enviarNotificacaoNoivos(pr.getNomeDoador(), pr.getEmailDoador(), pr.getMensagem(), pr, forma);
+        emailService.enviarConfirmacaoConvidado(pr.getNome(), pr.getEmail(), pr, forma);
+        emailService.enviarNotificacaoNoivos(pr.getNome(), pr.getEmail(), pr.getMensagem(), pr, forma);
     }
 
     // ── Salvar ────────────────────────────────────────────
@@ -260,8 +274,8 @@ public class PagamentoService {
             String mpPaymentId, String mpPreferenceId, String externalRef) {
 
         PresenteRecebido pr = PresenteRecebido.builder()
-                .nomeDoador(req.getNomeDoador())
-                .emailDoador(req.getEmailDoador())
+                .nome(req.getNome())
+                .email(req.getEmail())
                 .mensagem(req.getMensagem())
                 .formaPagamento(forma)
                 .total(total)
@@ -309,10 +323,5 @@ public class PagamentoService {
     private String primeiroNome(String nome) {
         String[] p = nome.trim().split("\\s+");
         return p[0];
-    }
-
-    private String sobrenome(String nome) {
-        String[] p = nome.trim().split("\\s+");
-        return p.length > 1 ? p[p.length - 1] : "";
     }
 }
