@@ -225,7 +225,7 @@ public class PagamentoService {
             String mpPaymentId = String.valueOf(data.get("id"));
 
             MPRequestOptions requestOptions = MPRequestOptions.builder()
-                    .accessToken(accessTokenPix)
+                    .accessToken(accessTokenCartao)
                     .build();
 
             PaymentClient client = new PaymentClient();
