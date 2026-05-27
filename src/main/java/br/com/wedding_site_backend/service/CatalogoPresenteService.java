@@ -42,11 +42,14 @@ public class CatalogoPresenteService {
 
     @Transactional
     public CatalogoPresenteDTO atualizar(Long id, CatalogoPresenteDTO dto) {
-        CatalogoPresente presente = buscarEntidade(id);
+        CatalogoPresente presente = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Presente não encontrado com ID: " + id));
+
         presente.setNome(dto.getNome());
         presente.setDescricao(dto.getDescricao());
         presente.setValor(dto.getValor());
         presente.setImagemUrl(dto.getImagemUrl());
+
         return toDTO(repository.save(presente));
     }
 
