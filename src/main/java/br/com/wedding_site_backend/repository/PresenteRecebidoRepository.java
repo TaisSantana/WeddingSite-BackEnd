@@ -23,4 +23,12 @@ public interface PresenteRecebidoRepository extends JpaRepository<PresenteRecebi
     // Soma total arrecadado de pagamentos PAGO
     @Query("SELECT COALESCE(SUM(p.total), 0) FROM PresenteRecebido p WHERE p.statusPagamento = 'PAGO'")
     BigDecimal somarTotalPago();
+
+    @Query("""
+    SELECT DISTINCT pr
+    FROM PresenteRecebido pr
+    LEFT JOIN FETCH pr.itens i
+    LEFT JOIN FETCH i.catalogoPresente
+""")
+    List<PresenteRecebido> findAllComItens();
 }

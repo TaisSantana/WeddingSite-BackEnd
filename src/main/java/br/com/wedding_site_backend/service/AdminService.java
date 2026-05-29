@@ -59,7 +59,7 @@ public class AdminService {
     }
 
     public List<PresenteRecebidoDTO> listarPresentesRecebidos() {
-        return presenteRecebidoRepo.findAll()
+        return presenteRecebidoRepo.findAllComItens()
                 .stream()
                 .map(this::toDTO)
                 .toList();

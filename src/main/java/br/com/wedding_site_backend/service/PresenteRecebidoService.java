@@ -6,6 +6,7 @@ import br.com.wedding_site_backend.dto.PresenteRecebidoDTO;
 import br.com.wedding_site_backend.repository.PresenteRecebidoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class PresenteRecebidoService {
 
     private final PresenteRecebidoRepository repository;
 
+    @Transactional(readOnly = true)
     public List<PresenteRecebidoDTO> listarTodos() {
         return repository.findAll()
                 .stream()
@@ -22,6 +24,7 @@ public class PresenteRecebidoService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<PresenteRecebidoDTO> listarPagos() {
         return repository.findByStatusPagamento("PAGO")
                 .stream()

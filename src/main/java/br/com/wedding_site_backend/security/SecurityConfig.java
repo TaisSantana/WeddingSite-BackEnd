@@ -56,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/catalogo/**").permitAll()
                         .requestMatchers(HttpMethod.POST,   "/api/convites/convidados").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/pagamentos/test-email/*").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
 
 
