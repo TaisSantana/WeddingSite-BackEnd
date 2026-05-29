@@ -20,7 +20,7 @@ public class ItemPresenteRecebido {
     private PresenteRecebido presenteRecebido;
 
     // snapshot do item escolhido — qual era o presente do catálogo
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne()
     @JoinColumn(name = "catalogo_presente_id", nullable = false)
     private CatalogoPresente catalogoPresente;
 
