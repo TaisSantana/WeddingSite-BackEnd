@@ -1,4 +1,6 @@
 spring:
+#  profiles:
+#    active: local
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -22,7 +24,7 @@ spring:
 
   mail:
     host: smtp.gmail.com
-    port: 587
+    port: {MAIL_PORT}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
     properties:
