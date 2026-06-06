@@ -24,7 +24,7 @@ spring:
 
   mail:
     host: smtp.gmail.com
-    port: {MAIL_PORT}
+    port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
     properties:
@@ -34,9 +34,6 @@ spring:
           starttls:
             enable: true
             required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
 
 app:
   jwt:
