@@ -20,18 +20,10 @@ spring:
         format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  mail:
-    host: smtp.gmail.com
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
+resend:
+  api-key: ${RESEND_API_KEY}
+  remetente: ${RESEND_REMETENTE:Tais & Gabriel <onboarding@resend.dev>}
+
 
 app:
   jwt:

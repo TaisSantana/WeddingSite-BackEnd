@@ -1,39 +1,49 @@
 package br.com.wedding_site_backend.service;
 
 import br.com.wedding_site_backend.domain.PresenteRecebido;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    // RestTemplate simples e síncrono — já vem disponível via spring-boot-starter-web,
+    // não precisa de nenhuma dependência nova no pom.xml.
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${resend.api-key}")
+    private String resendApiKey;
 
     @Value("${app.email.noivos}")
     private String emailNoivos;
 
-    @Value("${spring.mail.username}")
-    private String emailRemetente;
+    // Remetente com nome + email verificado no domínio configurado no Resend.
+    // Ex: "Taís & Gabriel 🦋 <presentes@taisegabriel.com>"
+    @Value("${resend.remetente}")
+    private String remetente;
+
+    private static final String RESEND_API_URL = "https://api.resend.com/emails";
 
     private static final DateTimeFormatter FMT =
-        DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
+            DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
 
     private static final NumberFormat BRL =
-        NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+            NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
     // ── Email para o convidado ────────────────────────────
     @Async
@@ -61,30 +71,31 @@ public class EmailService {
         }
     }
 
-    // ── Envio ─────────────────────────────────────────────
-    private void enviar(String para, String assunto, String html)
-            throws MessagingException {
-        MimeMessage msg = mailSender.createMimeMessage();
-        MimeMessageHelper h = new MimeMessageHelper(msg, true, "UTF-8");
-        try {
-            h.setFrom(emailRemetente, "Taís & Gabriel 🦋");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-        h.setTo(para);
-        h.setSubject(assunto);
-        h.setText(html, true);
-        mailSender.send(msg);
+    // ── Envio via Resend (HTTPS API, funciona em qualquer plano do Railway) ──
+    private void enviar(String para, String assunto, String html) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(resendApiKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> body = Map.of(
+                "from", remetente,
+                "to", List.of(para),
+                "subject", assunto,
+                "html", html
+        );
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+        restTemplate.postForEntity(RESEND_API_URL, request, String.class);
     }
 
-    // ── Templates ─────────────────────────────────────────
+    // ── Templates (idênticos aos originais — nenhuma mudança de layout) ───
     private String templateConvidado(String nome, PresenteRecebido c, String forma) {
         String valor    = BRL.format(c.getTotal());
         String data     = c.getCriadoEm() != null ? c.getCriadoEm().format(FMT) : "agora";
         String pagLabel = "PIX".equals(forma) ? "📱 Pix" : "💳 Cartão de Crédito";
         String msgBox   = (c.getMensagem() != null && !c.getMensagem().isBlank())
-            ? "<div class=\"msg-box\">Sua mensagem para os noivos:<br><em>\"" + c.getMensagem() + "\"</em></div>"
-            : "";
+                ? "<div class=\"msg-box\">Sua mensagem para os noivos:<br><em>\"" + c.getMensagem() + "\"</em></div>"
+                : "";
 
         return """
                 <!DOCTYPE html>
@@ -144,8 +155,8 @@ public class EmailService {
         String data     = c.getCriadoEm() != null ? c.getCriadoEm().format(FMT) : "agora";
         String pagLabel = "PIX".equals(forma) ? "📱 Pix" : "💳 Cartão";
         String msgBox   = (mensagem != null && !mensagem.isBlank())
-            ? "<div class=\"msg-box\">💌 <em>\"" + mensagem + "\"</em></div>"
-            : "";
+                ? "<div class=\"msg-box\">💌 <em>\"" + mensagem + "\"</em></div>"
+                : "";
 
         return """
             <!DOCTYPE html>
