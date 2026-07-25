@@ -18,7 +18,7 @@ public class CatalogoPresenteService {
     private final CatalogoPresenteRepository repository;
 
     public List<CatalogoPresenteDTO> listarTodos() {
-        return repository.findAll()
+        return repository.findByIdGreaterThan(0L)
                 .stream()
                 .map(this::toDTO)
                 .toList();
