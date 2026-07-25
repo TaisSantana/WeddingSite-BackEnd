@@ -26,18 +26,21 @@ public class EmailService {
     // não precisa de nenhuma dependência nova no pom.xml.
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${resend.api-key}")
-    private String resendApiKey;
+    @Value("${sendgrid.api-key}")
+    private String sendgridApiKey;
 
     @Value("${app.email.noivos}")
     private String emailNoivos;
 
-    // Remetente com nome + email verificado no domínio configurado no Resend.
-    // Ex: "Taís & Gabriel 🦋 <presentes@taisegabriel.com>"
-    @Value("${resend.remetente}")
-    private String remetente;
+    // Precisa ser EXATAMENTE o endereço verificado via Single Sender Verification
+    // no painel do SendGrid (Settings -> Sender Authentication -> Single Sender Verification).
+    @Value("${sendgrid.remetente-email}")
+    private String remetenteEmail;
 
-    private static final String RESEND_API_URL = "https://api.resend.com/emails";
+    @Value("${sendgrid.remetente-nome:Tais & Gabriel}")
+    private String remetenteNome;
+
+    private static final String SENDGRID_API_URL = "https://api.sendgrid.com/v3/mail/send";
 
     private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
@@ -71,21 +74,28 @@ public class EmailService {
         }
     }
 
-    // ── Envio via Resend (HTTPS API, funciona em qualquer plano do Railway) ──
+    // ── Envio via SendGrid (HTTPS API, funciona em qualquer plano do Railway) ──
     private void enviar(String para, String assunto, String html) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(resendApiKey);
+        headers.setBearerAuth(sendgridApiKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> body = Map.of(
-                "from", remetente,
-                "to", List.of(para),
+                "personalizations", List.of(
+                        Map.of("to", List.of(Map.of("email", para)))
+                ),
+                "from", Map.of(
+                        "email", remetenteEmail,
+                        "name", remetenteNome
+                ),
                 "subject", assunto,
-                "html", html
+                "content", List.of(
+                        Map.of("type", "text/html", "value", html)
+                )
         );
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-        restTemplate.postForEntity(RESEND_API_URL, request, String.class);
+        restTemplate.postForEntity(SENDGRID_API_URL, request, String.class);
     }
 
     // ── Templates (idênticos aos originais — nenhuma mudança de layout) ───

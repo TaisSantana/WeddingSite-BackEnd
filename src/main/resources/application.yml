@@ -20,9 +20,10 @@ spring:
         format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-resend:
-  api-key: ${RESEND_API_KEY}
-  remetente: ${RESEND_REMETENTE:Tais & Gabriel <onboarding@resend.dev>}
+sendgrid:
+  api-key: ${SENDGRID_API_KEY}
+  remetente-email: ${SENDGRID_REMETENTE_EMAIL}
+  remetente-nome: ${SENDGRID_REMETENTE_NOME:Tais & Gabriel}
 
 
 app:
