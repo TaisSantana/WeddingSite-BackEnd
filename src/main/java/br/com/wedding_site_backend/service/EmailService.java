@@ -98,7 +98,11 @@ public class EmailService {
         restTemplate.postForEntity(SENDGRID_API_URL, request, String.class);
     }
 
-    // ── Templates (idênticos aos originais — nenhuma mudança de layout) ───
+    // ── Templates ─────────────────────────────────────────
+    // Nota: as linhas "label / valor" usam <table> em vez de flexbox (display:flex).
+    // Isso é necessário porque muitos clientes de email (Gmail, Outlook, apps móveis)
+    // têm suporte parcial ou nenhum a flexbox/justify-content, o que fazia o texto
+    // aparecer colado ("Nome:tatah"). Tabelas têm suporte universal em email HTML.
     private String templateConvidado(String nome, PresenteRecebido c, String forma) {
         String valor    = BRL.format(c.getTotal());
         String data     = c.getCriadoEm() != null ? c.getCriadoEm().format(FMT) : "agora";
@@ -121,10 +125,11 @@ public class EmailService {
                   .body{background:white;border-radius:0 0 16px 16px;padding:2rem}
                   .greeting{font-size:1rem;color:#5A4E6A;margin-bottom:1.5rem;line-height:1.7}
                   .box{background:#DCE8F5;border-radius:12px;padding:1.2rem 1.5rem;margin-bottom:1.2rem}
-                  .row{display:flex;justify-content:space-between;padding:.35rem 0;
-                       border-bottom:1px solid rgba(146,168,209,.3);font-size:.87rem}
-                  .row:last-child{border-bottom:none;font-weight:700}
-                  .label{color:#8A7A9A}.value{color:#2C2035}
+                  .row-table{width:100%%;border-collapse:collapse}
+                  .row-table td{padding:.5rem 0;border-bottom:1px solid rgba(146,168,209,.3);font-size:.87rem}
+                  .row-table tr:last-child td{border-bottom:none;font-weight:700}
+                  .label{color:#8A7A9A;text-align:left}
+                  .value{color:#2C2035;text-align:right}
                   .msg-box{background:#F3EAF7;border-left:4px solid #9A6EB0;border-radius:0 8px 8px 0;
                            padding:1rem 1.2rem;margin-bottom:1.2rem;font-style:italic;color:#5A4E6A;font-size:.9rem}
                   .footer{text-align:center;margin-top:2rem;font-size:.8rem;color:#8A7A9A}
@@ -144,9 +149,11 @@ public class EmailService {
                         Cada gesto de carinho torna essa jornada ainda mais inesquecível para nós. 🩵
                     </p>
                     <div class="box">
-                      <div class="row"><span class="label">Pagamento: </span><span class="value">%s</span></div>
-                      <div class="row"><span class="label">Data: </span><span class="value">%s</span></div>
-                      <div class="row"><span class="label">Valor: </span><span class="value">%s</span></div>
+                      <table class="row-table" role="presentation" cellpadding="0" cellspacing="0">
+                        <tr><td class="label">Pagamento</td><td class="value">%s</td></tr>
+                        <tr><td class="label">Data</td><td class="value">%s</td></tr>
+                        <tr><td class="label">Valor</td><td class="value">%s</td></tr>
+                      </table>
                     </div>
                     %s
                     <p class="greeting" style="font-size:.9rem">
@@ -181,9 +188,11 @@ public class EmailService {
               .header h1{font-size:1.5rem;margin:0;font-style:italic}
               .body{background:white;border-radius:0 0 16px 16px;padding:1.8rem}
               .box{background:#DCE8F5;border-radius:10px;padding:1.2rem;margin:1rem 0}
-              .row{display:flex;justify-content:space-between;font-size:.87rem;
-                   padding:.35rem 0;border-bottom:1px solid rgba(146,168,209,.25)}
-              .row:last-child{border-bottom:none;font-weight:700;color:#5E7FA8}
+              .row-table{width:100%%;border-collapse:collapse}
+              .row-table td{padding:.4rem 0;font-size:.87rem;border-bottom:1px solid rgba(146,168,209,.25)}
+              .row-table tr:last-child td{border-bottom:none;font-weight:700;color:#5E7FA8}
+              .label{text-align:left}
+              .value{text-align:right}
               .msg-box{background:#F3EAF7;border-left:4px solid #9A6EB0;padding:.8rem 1rem;
                        border-radius:0 8px 8px 0;font-style:italic;font-size:.88rem;color:#5A4E6A;margin-top:1rem}
             </style>
@@ -196,11 +205,13 @@ public class EmailService {
               <div class="body">
                 <p>Vocês receberam um presente de <strong>%s</strong>!</p>
                 <div class="box">
-                  <div class="row"><span>Nome: </span><span>%s</span></div>
-                  <div class="row"><span>Email: </span><span>%s</span></div>
-                  <div class="row"><span>Pagamento: </span><span>%s</span></div>
-                  <div class="row"><span>Data: </span><span>%s</span></div>
-                  <div class="row"><span>Valor: </span><span>%s</span></div>
+                  <table class="row-table" role="presentation" cellpadding="0" cellspacing="0">
+                    <tr><td class="label">Nome</td><td class="value">%s</td></tr>
+                    <tr><td class="label">Email</td><td class="value">%s</td></tr>
+                    <tr><td class="label">Pagamento</td><td class="value">%s</td></tr>
+                    <tr><td class="label">Data</td><td class="value">%s</td></tr>
+                    <tr><td class="label">Valor</td><td class="value">%s</td></tr>
+                  </table>
                 </div>
                 %s
               </div>
