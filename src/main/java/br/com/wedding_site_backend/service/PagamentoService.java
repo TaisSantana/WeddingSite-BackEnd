@@ -114,7 +114,6 @@
         }
 
         // ── Polling de status Pix ─────────────────────────────
-        @Transactional
         public StatusPixDTO consultarStatusPix(String mpPaymentId) {
             try {
                 MPRequestOptions requestOptions = MPRequestOptions.builder()
