@@ -42,7 +42,7 @@
         private final CatalogoPresenteRepository catalogoRepo;
         private final EmailService emailService;
         private static final Long LOOT_MISTERIOSO_CATALOGO_ID = -1L;
-        private static final BigDecimal VALOR_LIVRE_MIN = BigDecimal.ONE;
+        private static final BigDecimal VALOR_LIVRE_MIN = new BigDecimal("0.01");
         private static final BigDecimal VALOR_LIVRE_MAX = new BigDecimal("50000");
 
 
