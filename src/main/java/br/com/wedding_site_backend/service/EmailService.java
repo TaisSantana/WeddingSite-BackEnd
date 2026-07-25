@@ -157,7 +157,7 @@ public class EmailService {
                     </div>
                     %s
                     <p class="greeting" style="font-size:.9rem">
-                      ✦ Nos vemos em <strong>19/09/2026 às 15h</strong> no
+                      ✦ Nos vemos em <strong>19/09/2026 às 16h</strong> no
                       <strong>Restaurante Natureza Viva</strong> — Feira Nova, PE. 🦋
                     </p>
                   </div>
